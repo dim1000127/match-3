@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class BoardLoad : MonoBehaviour
 {
-    public List<GameObject> blocks = new List<GameObject>();
+    [SerializeField] private List<GameObject> blocks = new List<GameObject>();
 
     //размерность доски
-    public int xSize;
-    public int ySize;
+    [SerializeField] private int xSize;
+    [SerializeField] private int ySize;
+    Board br = new Board();
 
     void Start()
     {
+        br.SizeBoard(xSize, ySize);
         //вычисление размера игрового объекта(гема)
         Vector2 offset = blocks[4].GetComponent<MeshRenderer>().bounds.size;
         //print(offset.x);
@@ -53,11 +55,18 @@ public class BoardLoad : MonoBehaviour
                 gem.x = x;
                 gem.y = y;
                 //добавление гема в игровое пространство
-                Instantiate(tempBlock, new Vector3(startX + (xSizeGem * x), startY + (ySizeGem * y), 20), tempBlock.transform.rotation, transform);
-
+                Board.board[x, y] = Instantiate(tempBlock, new Vector3(startX + (xSizeGem * x), startY + (ySizeGem * y), 20), tempBlock.transform.rotation, transform);
                 gemsLeft[y] = tempBlock;
                 gemsBottom = tempBlock;
             }
         }
+
+        /*for (int x = 0; x < br.board.GetLength(0); x++)
+        {
+            for (int y = 0; y < br.board.GetLength(1); y++)
+            {
+                Debug.Log(br.board[x, y].gameObject.name);
+            }
+        }*/
     }
 }
