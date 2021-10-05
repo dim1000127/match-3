@@ -4,29 +4,22 @@ using UnityEngine;
 
 public class Gems : MonoBehaviour
 {
-	//переменные для сравнения "позиции" гемов
     public int x;
 	public int y;
 
 	private bool isSelected = false;
-
 	private static Gems gemsSelected = null;
 
 	Board brGm = new Board();
-	//BoardLoad brLoad = new BoardLoad();
 
-	void Start()
-    {
-
-    }
-
-    void Update()
-    {
-        
-    }
 
 	void OnMouseDown()
 	{
+		if (SceneLoad.gameIsPause) 
+		{
+			return;		
+		}
+
 		if (isSelected)
 		{
 			Deselect();
@@ -88,7 +81,7 @@ public class Gems : MonoBehaviour
 
 		sel.transform.position = sel2.transform.position;
 		sel2.transform.position = gemPos;
-		//обмен "позициями" гемов и именами
+		
 		sel.x = sel2.x;
 		sel.y = sel2.y;
 		sel.name = "X:" + sel.x + "Y:" + sel.y;
@@ -96,6 +89,7 @@ public class Gems : MonoBehaviour
 		sel2.x = tempX;
 		sel2.y = tempY;
 		sel2.name = "X:" + sel2.x + "Y:" + sel2.y;
+
 		Board.board[sel.x, sel.y] = sel;
 		Board.board[sel2.x, sel2.y] = sel2;
 	}
@@ -106,6 +100,7 @@ public class Gems : MonoBehaviour
 		Gems sel2 = g;
 
 		Vector3 gemPos = sel.transform.position;
+
 		int tempX = sel.x;
 		int tempY = sel.y;
 
@@ -119,6 +114,7 @@ public class Gems : MonoBehaviour
 		sel2.x = tempX;
 		sel2.y = tempY;
 		sel2.name = "X:" + sel2.x + "Y:" + sel2.y;
+
 		Board.board[sel.x, sel.y] = sel;
 		Board.board[sel2.x, sel2.y] = sel2;
 	}

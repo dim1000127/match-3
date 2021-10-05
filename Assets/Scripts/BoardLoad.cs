@@ -1,32 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class BoardLoad : MonoBehaviour
 {
     [SerializeField] private List<GameObject> blocks = new List<GameObject>();
-
-    //размерность доски
     [SerializeField] private int xSize;
     [SerializeField] private int ySize;
+    [SerializeField] private TextMeshProUGUI _textScore;
     Board br = new Board();
     void Start()
     {
+        
         Board.SizeBoard(xSize, ySize);
-        //вычисление размера игрового объекта(гема)
+        //Board.score = 0;
         Vector2 offset = blocks[4].GetComponent<MeshRenderer>().bounds.size;
-        //print(offset.x);
-        //print(offset.y);
-        //для расстояния между гемами прибавляется 0.15
+
         CreateBoard(offset.x + (float)0.15, offset.y + (float)0.15);
     }
 
     void Update()
-    {
+    { 
         if (Board.startRespawn)
         {
             Board.startRespawn = false;
             Board.deleteCheck = false;
+            _textScore.text = Board.score.ToString();
             Respawn();
         }
     }
@@ -36,30 +37,30 @@ public class BoardLoad : MonoBehaviour
         float startX = transform.position.x;     
         float startY = transform.position.y;
 
-        //массив для хранения добавленных гемов слева
         GameObject[] gemsLeft = new GameObject[ySize];
-        //массив для хранения добавленного гема внизу
         GameObject gemsBottom = null;
         GameObject tempBlock;
+
         for (int x = 0; x < xSize; x++)
         {
             for (int y = 0; y < ySize; y++)
             {
-                //новый List(копия листа с гемами) для динмической работы с ним
                 List<GameObject> checkBlocks = new List<GameObject>();
+
                 checkBlocks.AddRange(blocks);
-                //удаление из List элементов находящ. слева и внизу
                 checkBlocks.Remove(gemsLeft[y]);
                 checkBlocks.Remove(gemsBottom);
 
-                int randNum = Random.Range(0, checkBlocks.Count); //номер рандомного гема из листа гемов
+                int randNum = Random.Range(0, checkBlocks.Count); 
                 tempBlock = checkBlocks[randNum];
                 tempBlock.name = "X:" + x + "Y:" + y;
+
                 Gems gem = tempBlock.gameObject.GetComponent<Gems>();
                 gem.x = x;
                 gem.y = y;
-                //добавление гема в игровое пространство
+
                 Board.board[x, y] = Instantiate(gem, new Vector3(startX + (xSizeGem * x), startY + (ySizeGem * y), 20), gem.transform.rotation, transform);
+
                 gemsLeft[y] = tempBlock;
                 gemsBottom = tempBlock;
             }
@@ -74,13 +75,14 @@ public class BoardLoad : MonoBehaviour
         GameObject tempBlockRes;
 
         Vector2 offset2 = GameObject.Find("5 Side Diamond(size)").GetComponent<MeshRenderer>().bounds.size;
+
         for (int x = 0; x < Board.board.GetLength(0); x++)
         {
             for (int y = 0; y < Board.board.GetLength(1); y++)
             {
                 int randNum = Random.Range(0, blocks.Count);
                 tempBlockRes = blocks[randNum];
-                //Debug.Log("шляпа");
+
                 if (Board.board[x, y] == null)
                 {
                     tempBlockRes.name = "X:" + x + "Y:" + y;
@@ -94,9 +96,11 @@ public class BoardLoad : MonoBehaviour
             }
         }
         br.CheckAllMatches();
+
         if (Board.deleteCheck)
         {
             br.SearchNullBlocks();
         }
+        SceneLoad.timeLeft = 5f;
     }
 }

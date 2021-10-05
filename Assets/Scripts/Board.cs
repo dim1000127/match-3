@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Board:MonoBehaviour
+public class Board : MonoBehaviour
 {
     public static Gems[,] board;
     public Gems game;
@@ -11,6 +11,8 @@ public class Board:MonoBehaviour
     List<Gems> mathesAllBlocks = new List<Gems>();
     public static bool startRespawn = false;
     public static bool deleteCheck = false;
+    public static int score = 0;
+
 
     public static void SizeBoard(int x, int y) {
         board = new Gems[x, y];
@@ -102,10 +104,13 @@ public class Board:MonoBehaviour
     private void DeleteAllMatches() 
     {
         Gems destroyObj;
+
         for (int i = 0; i < mathesAllBlocks.Count; i++) 
         {
+            score += 10;
             destroyObj = mathesAllBlocks[i];
             board[destroyObj.x, destroyObj.y] = null;
+
             Destroy(mathesAllBlocks[i].gameObject);
         }
         mathesAllBlocks.Clear();
@@ -129,12 +134,11 @@ public class Board:MonoBehaviour
     private void SlideBlocksDown(int x, int yStart)
     {
         float startY = GameObject.FindGameObjectWithTag("Board").transform.position.y;
-        //Debug.Log(startX + " " + startY);
+
         Vector2 offset = GameObject.Find("5 Side Diamond(size)").GetComponent<MeshRenderer>().bounds.size;
         float ySize = offset.y + (float)0.15;
 
         List<Gems> slideBlocks = new List<Gems>();
-        //Gems destroyObjSlide;
 
         for (int y = yStart; y < board.GetLength(1); y++)
         {
@@ -149,62 +153,12 @@ public class Board:MonoBehaviour
         {
             var position = slideBlocks[k].transform.position;
             position.y = startY + (ySize * (yStart + k));
+
             slideBlocks[k].gameObject.transform.position = position;
             slideBlocks[k].name = "X:" + x + "Y:" + (yStart + k);
             slideBlocks[k].y = yStart + k;
+
             board[x, yStart + k] = slideBlocks[k];
         }
     }
-    /*public void SearchNullBlocks()
-    {
-        for (int x = 0; x < board.GetLength(0); x++)
-        {
-            for (int y = 0; y < board.GetLength(1); y++)
-            {
-                if (board[x, y] == null)
-                {
-                    SlideBlocksDown(x, y);
-                    return;
-                }
-            }
-        }
-    }
-
-    private void SlideBlocksDown(int x, int yStart)
-    {
-        float startX = GameObject.FindGameObjectWithTag("Board").transform.position.x;
-        float startY = GameObject.FindGameObjectWithTag("Board").transform.position.y;
-        //Debug.Log(startX + " " + startY);
-        Vector2 offset = GameObject.Find("5 Side Diamond(size)").GetComponent<MeshRenderer>().bounds.size;
-        float xSize = offset.x + (float)0.15;
-        float ySize = offset.y + (float)0.15;
-
-        List<Gems> slideBlocks = new List<Gems>();
-        Gems destroyObjSlide;
-
-        for (int y = yStart; y < board.GetLength(1); y++)
-        {
-            if (board[x, y] != null)
-            {
-                slideBlocks.Add(board[x, y]);
-                destroyObjSlide = board[x, y];
-                Destroy(destroyObjSlide.gameObject);
-                board[x, y] = null;
-            }
-        }
-
-        for (int k = 0; k < slideBlocks.Count; k++)
-        {
-            //Debug.Log(slideBlocks[k].name);
-            if (slideBlocks[k] == blocks[i].gameObject.tag)
-            {
-                blocks[i].name = "X:" + x + "Y:" + yStart + k;
-                Gems gemSlide = blocks[i].gameObject.GetComponent<Gems>();
-                gemSlide.x = x;
-                gemSlide.y = yStart + k;
-                Board.board[x, yStart + k] = Instantiate(gemSlide, new Vector3(startX + (xSize * x), startY + (ySize * (yStart + k)), 20), gemSlide.transform.rotation, transform);
-            }
-            board[x, yStart + k] = Instantiate(slideBlocks[k], new Vector3(startX + (xSize * x), startY + (ySize * (yStart+k)), 20), slideBlocks[k].transform.rotation, transform);
-        }
-    }*/
 }
