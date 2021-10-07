@@ -13,6 +13,7 @@ public class SceneLoad : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _textTime;
     [SerializeField] private GameObject _gameOverMenu;
     [SerializeField] private GameObject _pauseMenu;
+    [SerializeField] private TextMeshProUGUI _textScoreGameOver;
     public static float timeLeft;
     public static bool gameIsPause = false;
     bool gameOver = false;
@@ -38,6 +39,7 @@ public class SceneLoad : MonoBehaviour
                 Time.timeScale = 0f;
                 gameIsPause = true;
                 gameOver = true;
+                _textScoreGameOver.text = Board.score.ToString();
                 _gameOverMenu.SetActive(true);
             }
         }
