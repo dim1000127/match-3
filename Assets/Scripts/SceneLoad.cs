@@ -39,7 +39,7 @@ public class SceneLoad : MonoBehaviour
                 Time.timeScale = 0f;
                 gameIsPause = true;
                 gameOver = true;
-                _textScoreGameOver.text = Board.score.ToString();
+                _textScoreGameOver.text = BoardLoad.score.ToString();
                 _gameOverMenu.SetActive(true);
             }
         }
@@ -63,7 +63,7 @@ public class SceneLoad : MonoBehaviour
         }
 
         var today = DateTime.Now;
-        string record = today + "&" + Board.score;
+        string record = today + "&" + BoardLoad.score;
         string numRow = $"N{lastNote}";
 
         PlayerPrefs.SetString(numRow, record);
@@ -95,7 +95,7 @@ public class SceneLoad : MonoBehaviour
         gameOver = false;
         Time.timeScale = 1f;
         timeLeft = _time;
-        Board.score = 0;
+        BoardLoad.score = 0;
         SceneManager.LoadScene(numScenes);
     }
 
