@@ -17,7 +17,7 @@ public class Gems : MonoBehaviour
 	private Gems gemsSelectedForBack = null;
 
 	const float speed = 15f;
-	private float tempTime = 1f;
+	//private float tempTime = 1f;
 
 	BoardLoad brGm = new BoardLoad();
 	

@@ -13,11 +13,16 @@ public class SceneLoad : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _textTime;
     [SerializeField] private GameObject _gameOverMenu;
     [SerializeField] private GameObject _pauseMenu;
+    [SerializeField] private GameObject _newRecordsMessage;
     [SerializeField] private TextMeshProUGUI _textScoreGameOver;
     public static float timeLeft;
     public static bool gameIsPause = false;
-    bool gameOver = false;
-    float resultTime;
+    private bool gameOver = false;
+    private bool saveResult = false;
+    private float resultTime;
+    private int minPosition = 0;
+
+    private List<string[]> allNote = new List<string[]>();
 
     void Start()
     {
@@ -43,32 +48,126 @@ public class SceneLoad : MonoBehaviour
                 _gameOverMenu.SetActive(true);
             }
         }
+
+        if (gameOver && !saveResult) 
+        {
+            Debug.Log(1111);
+            SaveResultGame();
+            gameOver = false;
+        }
     }
 
     void SaveResultGame()
     {
-        int lastNote = 0;
+        //PlayerPrefs.DeleteAll();
 
-        if (PlayerPrefs.HasKey("lastNote"))
+        int lastNote = 0;
+        int maxIndex = 0;
+        int max;
+        string[] min;
+
+        for (int i = 0; i < 10; i++)
         {
-            lastNote = PlayerPrefs.GetInt("lastNote");
-            if (lastNote == 9)
+            if (PlayerPrefs.HasKey($"N{i}"))
             {
-                lastNote = 0;
-            }
-            else
-            {
-                lastNote++;
+                string[] records = TextParse(PlayerPrefs.GetString($"N{i}"));
+                allNote.Add(records);
             }
         }
 
-        var today = DateTime.Now;
-        string record = today + "&" + BoardLoad.score;
-        string numRow = $"N{lastNote}";
 
-        PlayerPrefs.SetString(numRow, record);
-        PlayerPrefs.SetInt("lastNote", lastNote); ;
-        PlayerPrefs.Save();
+        if (PlayerPrefs.HasKey("lastNote") && allNote.Count != 0)
+        {
+            lastNote = PlayerPrefs.GetInt("lastNote");
+            max = SearchMax();
+            if (BoardLoad.score > max)
+            {
+                _newRecordsMessage.SetActive(true);
+                if (lastNote == 9)
+                {
+                    //min = SearchMin();
+                    //if (BoardLoad.score > Convert.ToInt32(min[1]))
+                    //{
+                    maxIndex = SearchMin();
+                    var today = DateTime.Now;
+                    string record = today + "&" + BoardLoad.score;
+                    string numRow = $"N{maxIndex}";
+                    PlayerPrefs.SetString(numRow, record);
+                    PlayerPrefs.Save();
+                    //}
+                    /*if (BoardLoad.score > max)
+                    {
+                        _newRecordsMessage.SetActive(true);
+                    }*/
+                }
+                else
+                {
+                    lastNote++;
+                    var today = DateTime.Now;
+                    string record = today + "&" + BoardLoad.score;
+                    string numRow = $"N{lastNote}";
+
+                    PlayerPrefs.SetString(numRow, record);
+                    PlayerPrefs.SetInt("lastNote", lastNote);
+                    PlayerPrefs.Save();
+                    if (BoardLoad.score > max)
+                    {
+                        _newRecordsMessage.SetActive(true);
+                    }
+                }
+            }
+        }
+        else
+        {
+            var today = DateTime.Now;
+            string record = today + "&" + BoardLoad.score;
+            string numRow = $"N{lastNote}";
+
+            PlayerPrefs.SetString(numRow, record);
+            PlayerPrefs.SetInt("lastNote", lastNote);
+            PlayerPrefs.Save();
+
+            _newRecordsMessage.SetActive(true);
+        }
+
+        saveResult = true;
+    }
+
+    private int SearchMax() 
+    {
+        int max = Convert.ToInt32(allNote[0][1]);
+         
+        for (int i = 1; i < allNote.Count; i++)
+        {
+            if (max < Convert.ToInt32(allNote[i][1]))
+            {
+                max = Convert.ToInt32(allNote[i][1]);
+            }
+        }
+        return max;
+    }
+
+    private int SearchMin()
+    {
+        int min = Convert.ToInt32(allNote[0][1]);
+        //string[] recordMin = null;
+
+        for (int i = 1; i < allNote.Count; i++)
+        {
+            if (min > Convert.ToInt32(allNote[i][1]))
+            {
+                min = Convert.ToInt32(allNote[i][1]);
+                //recordMin = allNote[i];
+                minPosition = i;
+            }
+        }
+        //return recordMin;
+        return minPosition;
+    }
+
+    string[] TextParse(string record)
+    {
+        return record.Split(new char[] { '&' });
     }
 
     public void Pause()
@@ -87,12 +186,13 @@ public class SceneLoad : MonoBehaviour
 
     public void ChangeScenes(int numScenes)
     {
-        if (gameOver) 
+        /*if (gameOver) 
         {
             SaveResultGame();
-        }
+        }*/
         gameIsPause = false;
         gameOver = false;
+        saveResult = false;
         Time.timeScale = 1f;
         timeLeft = _time;
         BoardLoad.score = 0;
@@ -102,6 +202,11 @@ public class SceneLoad : MonoBehaviour
     public void Exit()
     {
         _exitMenuUi.SetActive(true);
+    }
+
+    public void CloseNewRecordsMessage()
+    {
+        _newRecordsMessage.SetActive(false);
     }
 
     public void CancelExit()
