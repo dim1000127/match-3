@@ -10,6 +10,7 @@ public class BoardLoad : MonoBehaviour
     [SerializeField] private int xSize;
     [SerializeField] private int ySize;
     [SerializeField] private TextMeshProUGUI _textScore;
+    [SerializeField] private GameObject _GemForSize;
 
     public static Gems[,] board;
 
@@ -21,41 +22,42 @@ public class BoardLoad : MonoBehaviour
 
     List<Gems> slideBlocks = new List<Gems>();
 
-    public bool startRespawn = false;
-    public bool startSlide = false;
+    private bool startRespawn = false;
+    private bool startSlide = false;
+    private bool slideBlocksDownEnd = false;
     public static bool deleteCheck = false;
     public static bool deleteComplete = false;
     public static bool animationActive = false;
     public static int score = 0;
 
-    const float timeDestroy = 0.5f;
-    const float speed = 15f;
-    private float tempTime = timeDestroy;
+    private const float timeDestroy = 0.8f;
+    private const float speed = 45f;
+    private const float positionZ = 20f;
+    private const string nameTagBoard = "Board";
+
+    private float tempTimeDelete = timeDestroy;
+    private float tempTimeRespawn = timeDestroy;
     private float startYForSlide;
     private int yStartNullGem;
-    private int xStartNullGem;
     private float ySizeGem;
 
-
-    //AnimationController animContr = new AnimationController();
     void Start()
     {
         SizeBoard(xSize, ySize);
 
-        Vector2 offset = blocks[4].GetComponent<MeshRenderer>().bounds.size;
+        Vector2 offset = _GemForSize.GetComponent<MeshRenderer>().bounds.size;
 
         CreateBoard(offset.x + (float)0.15, offset.y + (float)0.15);
     }
 
-    private void Update()
+    void Update()
     { 
-        //Debug.Log(tempTime);
 
         if (deleteComplete) 
         {
             animationActive = true;
-            tempTime -= Time.deltaTime * 1.5f;
-            if (tempTime <= 0) 
+            tempTimeDelete -= Time.deltaTime * 1.5f;
+            if (tempTimeDelete <= 0) 
             {
                 deleteComplete = false;
                 animationActive = false;
@@ -63,41 +65,43 @@ public class BoardLoad : MonoBehaviour
             }
         }
 
-        /*if (startSlide) 
+        if (startRespawn)
         {
+            animationActive = true;
+            tempTimeRespawn -= Time.deltaTime * 1.5f;
+            if (tempTimeRespawn <= 0)
+            {
+                animationActive = false;
+                startRespawn = false;
+                deleteCheck = false;
+                _textScore.text = score.ToString();
+                Respawn();
+            }
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (startSlide)
+        {
+            animationActive = true;
             for (int k = 0; k < slideBlocks.Count; k++)
             {
-                Debug.Log(k);
-                //var position = slideBlocks[k].transform.position;
                 float step = speed * Time.deltaTime;
 
                 Vector3 positionEnd = slideBlocks[k].transform.position;
                 positionEnd.y = startYForSlide + (ySizeGem * (yStartNullGem + k));
 
                 slideBlocks[k].transform.position = Vector3.MoveTowards(slideBlocks[k].transform.position, positionEnd, step);
-                if (slideBlocks[k].transform.position == positionEnd)
+                if (slideBlocks[slideBlocks.Count - 1].transform.position == positionEnd)
                 {
-                    //slideBlocks[k].gameObject.transform.position = position;
-                    slideBlocks[k].name = "X:" + xStartNullGem + "Y:" + (yStartNullGem + k);
-                    slideBlocks[k].y = yStartNullGem + k;
-
-                    board[xStartNullGem, yStartNullGem + k] = slideBlocks[k];
-                    if (k == slideBlocks.Count - 1)
-                    {
-                        //slideBlocks.Clear();
-                        startSlide = false;
-                    }
+                    startSlide = false;
+                    animationActive = false;
+                    tempTimeRespawn = timeDestroy;
+                    slideBlocks.Clear();
+                    SearchNullBlocks();
                 }
             }
-            //startSlide = false;
-        }*/
-
-        if (startRespawn)
-        {
-            startRespawn = false;
-            deleteCheck = false;
-            _textScore.text = score.ToString();
-            Respawn();
         }
     }
 
@@ -106,12 +110,15 @@ public class BoardLoad : MonoBehaviour
         board = new Gems[x, y];
     }
 
-    void CreateBoard(float xSizeGem, float ySizeGem)
+    private void CreateBoard(float xSizeGem, float ySizeGem)
     {
         float startX = transform.position.x;
         float startY = transform.position.y;
 
-        GameObject[] gemsLeft = new GameObject[ySize];
+        float positionGemX;
+        float positionGemY;
+
+        var gemsLeft = new GameObject[ySize];
         GameObject gemsBottom = null;
         GameObject tempBlock;
 
@@ -133,7 +140,10 @@ public class BoardLoad : MonoBehaviour
                 gem.x = x;
                 gem.y = y;
 
-                board[x, y] = Instantiate(gem, new Vector3(startX + (xSizeGem * x), startY + (ySizeGem * y), 20), gem.transform.rotation, transform);
+                positionGemX = startX + (xSizeGem * x);
+                positionGemY = startY + (ySizeGem * y);
+
+                board[x, y] = Instantiate(gem, new Vector3(positionGemX, positionGemY, positionZ), gem.transform.rotation, transform);
 
                 gemsLeft[y] = tempBlock;
                 gemsBottom = tempBlock;
@@ -143,11 +153,11 @@ public class BoardLoad : MonoBehaviour
 
     public void CheckAllMatches()
     {
-        tempTime = timeDestroy;
+        tempTimeDelete = timeDestroy;
         //нахождение рядов по вертикали
         for (int x = 0; x < board.GetLength(0); x++)
         {
-            List<Gems> mathes = new List<Gems>();
+            var mathes = new List<Gems>();
             game = board[x, 0];
             for (int y = 0; y < board.GetLength(1) - 1; y++)
             {
@@ -185,7 +195,7 @@ public class BoardLoad : MonoBehaviour
         //нахождение рядов по горизонтали
         for (int y = 0; y < board.GetLength(1); y++)
         {
-            List<Gems> mathes2 = new List<Gems>();
+            var mathes2 = new List<Gems>();
             game2 = board[0, y];
             for (int x = 0; x < board.GetLength(0) - 1; x++)
             {
@@ -248,38 +258,49 @@ public class BoardLoad : MonoBehaviour
 
     public void SearchNullBlocks()
     {
+        int xFirstNull = 0;
+        int yFirstNull = 0;
+
         for (int x = 0; x < board.GetLength(0); x++)
         {
             for (int y = 0; y < board.GetLength(1); y++)
             {
                 if (board[x, y] == null)
                 {
-                    //StartCoroutine(Waiter(x,y));
-                    SlideBlocksDown(x, y);
+                    if (SearchNotNullBlocksUp(x, y))
+                    {
+                        xFirstNull = x;
+                        yFirstNull = y;
+                        x = board.GetLength(0) + 1;
+                        SlideBlocksDown(xFirstNull, yFirstNull);
+                        break;
+                    }
                 }
             }
         }
         startRespawn = true;
     }
 
-    /*private IEnumerator Waiter(int x, int y) 
+    private bool SearchNotNullBlocksUp(int x, int yStart) 
     {
-
-        yield return new WaitForSeconds(0.5f);
-        SlideBlocksDown(x, y);
-    }*/
+        for (int y = yStart; y < board.GetLength(1); y++)
+        {
+            if (board[x, y] != null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void SlideBlocksDown(int x, int yStart)
     {
-        //slideBlocks.Clear();
-        /*xStartNullGem = x;
         yStartNullGem = yStart;
-        startYForSlide = GameObject.FindGameObjectWithTag("Board").transform.position.y;*/
-        float startY = GameObject.FindGameObjectWithTag("Board").transform.position.y;
+        startYForSlide = GameObject.FindGameObjectWithTag(nameTagBoard).transform.position.y;
 
-        Vector2 offset = GameObject.Find("5 Side Diamond(size)").GetComponent<MeshRenderer>().bounds.size;
-        List<Gems> slideBlocks = new List<Gems>();
-        float ySize = offset.y + (float)0.15;
+        Vector2 offset = _GemForSize.GetComponent<MeshRenderer>().bounds.size;
+
+        ySizeGem = offset.y + (float)0.15;
 
         for (int y = yStart; y < board.GetLength(1); y++)
         {
@@ -290,18 +311,15 @@ public class BoardLoad : MonoBehaviour
             }
         }
 
+        startSlide = true;
+
         for (int k = 0; k < slideBlocks.Count; k++)
         {
-            var position = slideBlocks[k].transform.position;
-            position.y = startY + (ySize * (yStart + k));
-
-            slideBlocks[k].gameObject.transform.position = position;
             slideBlocks[k].name = "X:" + x + "Y:" + (yStart + k);
             slideBlocks[k].y = yStart + k;
 
             board[x, yStart + k] = slideBlocks[k];
         }
-        //slideBlocks.Clear();
     }
 
     public void Respawn()
@@ -309,9 +327,12 @@ public class BoardLoad : MonoBehaviour
         float startX = transform.position.x;
         float startY = transform.position.y;
 
+        float positionGemXRespawn;
+        float positionGemYRespawn;
+
         GameObject tempBlockRes;
 
-        Vector2 offset2 = GameObject.Find("5 Side Diamond(size)").GetComponent<MeshRenderer>().bounds.size;
+        Vector2 offset2 = _GemForSize.GetComponent<MeshRenderer>().bounds.size;
 
         for (int x = 0; x < board.GetLength(0); x++)
         {
@@ -328,18 +349,14 @@ public class BoardLoad : MonoBehaviour
                     gemRes.x = x;
                     gemRes.y = y;
 
-                    board[x, y] = Instantiate(gemRes, new Vector3(startX + ((offset2.x + (float)0.15) * x), startY + ((offset2.y + (float)0.15) * y), 20), gemRes.transform.rotation, transform);
+                    positionGemXRespawn = startX + ((offset2.x + (float)0.15) * x);
+                    positionGemYRespawn = startY + ((offset2.y + (float)0.15) * y);
+
+                    board[x, y] = Instantiate(gemRes, new Vector3(positionGemXRespawn, positionGemYRespawn, positionZ), gemRes.transform.rotation, transform);
                 }
             }
         }
-
+        tempTimeRespawn = timeDestroy;
         CheckAllMatches();
-
-        /*if (deleteCheck)
-        {
-            SearchNullBlocks();
-        }*/
-
-        //SceneLoad.timeLeft = 10f;
     }
 }

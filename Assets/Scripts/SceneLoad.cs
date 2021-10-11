@@ -15,12 +15,15 @@ public class SceneLoad : MonoBehaviour
     [SerializeField] private GameObject _pauseMenu;
     [SerializeField] private GameObject _newRecordsMessage;
     [SerializeField] private TextMeshProUGUI _textScoreGameOver;
+
     public static float timeLeft;
     public static bool gameIsPause = false;
+
     private bool gameOver = false;
     private bool saveResult = false;
     private float resultTime;
     private int minPosition = 0;
+    private const string nameScenesGame = "Game";
 
     private List<string[]> allNote = new List<string[]>();
 
@@ -31,7 +34,7 @@ public class SceneLoad : MonoBehaviour
 
     void Update ()
     {
-        if (SceneManager.GetActiveScene().name == "Game")
+        if (SceneManager.GetActiveScene().name == nameScenesGame)
         {
             if (timeLeft > 0)
             {
@@ -57,14 +60,12 @@ public class SceneLoad : MonoBehaviour
         }
     }
 
-    void SaveResultGame()
+    private void SaveResultGame()
     {
-        //PlayerPrefs.DeleteAll();
 
         int lastNote = 0;
         int maxIndex = 0;
         int max;
-        string[] min;
 
         for (int i = 0; i < 10; i++)
         {
@@ -85,20 +86,12 @@ public class SceneLoad : MonoBehaviour
                 _newRecordsMessage.SetActive(true);
                 if (lastNote == 9)
                 {
-                    //min = SearchMin();
-                    //if (BoardLoad.score > Convert.ToInt32(min[1]))
-                    //{
                     maxIndex = SearchMin();
                     var today = DateTime.Now;
                     string record = today + "&" + BoardLoad.score;
                     string numRow = $"N{maxIndex}";
                     PlayerPrefs.SetString(numRow, record);
                     PlayerPrefs.Save();
-                    //}
-                    /*if (BoardLoad.score > max)
-                    {
-                        _newRecordsMessage.SetActive(true);
-                    }*/
                 }
                 else
                 {
@@ -150,22 +143,19 @@ public class SceneLoad : MonoBehaviour
     private int SearchMin()
     {
         int min = Convert.ToInt32(allNote[0][1]);
-        //string[] recordMin = null;
 
         for (int i = 1; i < allNote.Count; i++)
         {
             if (min > Convert.ToInt32(allNote[i][1]))
             {
                 min = Convert.ToInt32(allNote[i][1]);
-                //recordMin = allNote[i];
                 minPosition = i;
             }
         }
-        //return recordMin;
         return minPosition;
     }
 
-    string[] TextParse(string record)
+    private string[] TextParse(string record)
     {
         return record.Split(new char[] { '&' });
     }

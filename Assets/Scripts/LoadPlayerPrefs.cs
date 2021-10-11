@@ -12,7 +12,6 @@ public class LoadPlayerPrefs : MonoBehaviour
     private List<string[]> allNoteLoadForSort = new List<string[]>();
 
     string[] max;
-    string[] lastRow;
 
     void Start()
     {
@@ -33,7 +32,6 @@ public class LoadPlayerPrefs : MonoBehaviour
             for (int i = 0; i < allNoteLoad.Count; i++)
             {
                 max = SearchMax();
-                //Debug.Log(max[0]);
                 var row = _contentList.transform.GetChild(i);
                 row.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = max[0];
                 row.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = max[1];
@@ -65,7 +63,7 @@ public class LoadPlayerPrefs : MonoBehaviour
         return maxRecords;
     }
 
-    string[] TextParse(string record)
+    private string[] TextParse(string record)
     {
         return record.Split(new char[] { '&' });
     }

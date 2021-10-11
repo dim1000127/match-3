@@ -19,19 +19,19 @@ public class Gems : MonoBehaviour
 	const float speed = 15f;
 	//private float tempTime = 1f;
 
-	BoardLoad brGm = new BoardLoad();
+	BoardLoad boardrLoad = new BoardLoad();
 	
-	Gems sel;
-	Gems sel2;
-	Gems selBack;
-	Gems sel2Back;
+	private Gems sel;
+	private Gems sel2;
+	private Gems selBack;
+	private Gems sel2Back;
 
-	Vector3 gemPosFirst;
-	Vector3 gemPosSecond;
-	Vector3 gemPosFirstBack;
-	Vector3 gemPosSecondBack;
+	private Vector3 gemPosFirst;
+	private Vector3 gemPosSecond;
+	private Vector3 gemPosFirstBack;
+	private Vector3 gemPosSecondBack;
 
-    private void Update() 
+    private void FixedUpdate() 
 	{
 		if (isSwap) 
 		{
@@ -42,18 +42,13 @@ public class Gems : MonoBehaviour
 			{
 				isSwap = false;
 				isSwapEnd = true;
-				brGm.CheckAllMatches();
+				boardrLoad.CheckAllMatches();
 				if (!BoardLoad.deleteCheck)
 				{
 					SwapBack();
 				}
 			}
 		}
-
-		/*if (!BoardLoad.deleteCheck)
-		{
-			SwapBack(gameObject.GetComponent<Gems>());
-		}*/
 
 		if (isSwapBack && isSwapEnd) 
 		{
@@ -66,19 +61,9 @@ public class Gems : MonoBehaviour
 				isSwapEnd = false;
 			}
 		}
-
-		/*if (isSwap)
-		{
-			tempTime -= Time.deltaTime * 2f;
-			if (tempTime <= 0)
-			{
-				//deleteComplete = false;
-				brGm.CheckAllMatches();
-			}
-		}*/
 	}
 
-	void OnMouseDown()
+	private void OnMouseDown()
 	{
 		if (SceneLoad.gameIsPause) 
 		{
@@ -105,10 +90,6 @@ public class Gems : MonoBehaviour
 				if (CheckNearby(gameObject.GetComponent<Gems>()))
 				{
 					Swap(gameObject.GetComponent<Gems>());
-					/*if (!BoardLoad.deleteCheck)
-					{
-						SwapBack(gameObject.GetComponent<Gems>());
-					}*/
 					gemsSelected.Deselect();
 				}
 				else 
@@ -122,10 +103,10 @@ public class Gems : MonoBehaviour
 	private void Select()
 	{
 		var animContr = gameObject.GetComponent<AnimationController>();
+
 		isSelected = true;
-		//gameObject.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+
 		animContr.ScaleLess(gameObject);
-		//animationController.ScaleLess(gameObject);
 		gemsSelected = gameObject.GetComponent<Gems>();
 	}
 
@@ -135,19 +116,17 @@ public class Gems : MonoBehaviour
 		isSelected = false;
 		if(!BoardLoad.deleteCheck)
 			animContr.ScaleMore(gameObject);
-		//animationController.ScaleMore(gameObject);
-		//gemsSelected.transform.localScale = new Vector3(1f, 1f, 1f);
 		gemsSelected = null;
 	}
 
-	void Swap(Gems g) 
+	private void Swap(Gems gemSelected) 
 	{
-		gemsSelectedSecond = g;
+		gemsSelectedSecond = gemSelected;
 		gemsSelectedForBack = gemsSelected;
 		//первый кристалл
 		sel = gemsSelected;
 		//второй кристалл
-		sel2 = g;
+		sel2 = gemSelected;
 
 		gemPosFirst = sel.transform.position;
 		gemPosSecond = sel2.transform.position;
@@ -169,7 +148,7 @@ public class Gems : MonoBehaviour
 		BoardLoad.board[sel2.x, sel2.y] = sel2;
 	}
 
-	void SwapBack() 
+	private void SwapBack() 
 	{
 		selBack = gemsSelectedForBack;
 		sel2Back = gemsSelectedSecond;
@@ -177,8 +156,8 @@ public class Gems : MonoBehaviour
 		gemPosFirstBack = selBack.transform.position;
 		gemPosSecondBack = sel2Back.transform.position;
 
-		int tempX = sel.x;
-		int tempY = sel.y;
+		int tempX = selBack.x;
+		int tempY = selBack.y;
 
 		isSwapBack = true;
 
@@ -194,27 +173,27 @@ public class Gems : MonoBehaviour
 		BoardLoad.board[sel2Back.x, sel2Back.y] = sel2Back;
 	}
 
-	bool CheckNearby(Gems g)
+	private bool CheckNearby(Gems gemSelected)
 	{
-		Gems sel = gemsSelected;
-		Gems sel2 = g;
+		Gems selCheck = gemsSelected;
+		Gems sel2Check = gemSelected;
 		//если находятся слева
-		if (sel.x - 1 == sel2.x && sel.y == sel2.y)
+		if (selCheck.x - 1 == sel2Check.x && selCheck.y == sel2Check.y)
 		{
 			return true;
 		}
 		//если находится справа
-		if (sel.x + 1 == sel2.x && sel.y == sel2.y)
+		if (selCheck.x + 1 == sel2Check.x && selCheck.y == sel2Check.y)
 		{
 			return true;
 		}
 		//если находится выше
-		if (sel.x == sel2.x && sel.y + 1 == sel2.y)
+		if (selCheck.x == sel2Check.x && selCheck.y + 1 == sel2Check.y)
 		{
 			return true;
 		}
 		//если находится ниже
-		if (sel.x == sel2.x && sel.y - 1 == sel2.y)
+		if (selCheck.x == sel2Check.x && selCheck.y - 1 == sel2Check.y)
 		{
 			return true;
 		}
