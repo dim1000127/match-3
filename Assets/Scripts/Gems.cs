@@ -8,6 +8,8 @@ public class Gems : MonoBehaviour
     public int x;
 	public int y;
 
+
+
 	private bool isSelected = false;
 	private bool isSwap = false;
 	private bool isSwapEnd = false;
@@ -123,9 +125,9 @@ public class Gems : MonoBehaviour
 	{
 		gemsSelectedSecond = gemSelected;
 		gemsSelectedForBack = gemsSelected;
-		//первый кристалл
+		//пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		sel = gemsSelected;
-		//второй кристалл
+		//пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		sel2 = gemSelected;
 
 		gemPosFirst = sel.transform.position;
@@ -177,22 +179,22 @@ public class Gems : MonoBehaviour
 	{
 		Gems selCheck = gemsSelected;
 		Gems sel2Check = gemSelected;
-		//если находятся слева
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 		if (selCheck.x - 1 == sel2Check.x && selCheck.y == sel2Check.y)
 		{
 			return true;
 		}
-		//если находится справа
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		if (selCheck.x + 1 == sel2Check.x && selCheck.y == sel2Check.y)
 		{
 			return true;
 		}
-		//если находится выше
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 		if (selCheck.x == sel2Check.x && selCheck.y + 1 == sel2Check.y)
 		{
 			return true;
 		}
-		//если находится ниже
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 		if (selCheck.x == sel2Check.x && selCheck.y - 1 == sel2Check.y)
 		{
 			return true;
